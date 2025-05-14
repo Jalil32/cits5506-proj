@@ -1,20 +1,30 @@
-import express, { type Request, type Response } from "express";
+import express from "express";
+import videoRoutes from "./routes/videoRoutes";
+import cors from "cors";
 
-// Initialize express app
+// 1) Initialize express app
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Middleware for parsing JSON bodies
+// 2 Setup CORS
+app.use(
+	cors({
+		// During development, allow requests from React's dev server
+		origin:
+			process.env.NODE_ENV === "production"
+				? process.env.FRONTEND_URL
+				: "http://localhost:5173",
+		methods: ["GET", "POST"],
+		credentials: true,
+	}),
+);
+
+// 2) Middleware
 app.use(express.json());
-// Middleware for parsing URL-encoded bodies
 app.use(express.urlencoded({ extended: true }));
+app.use(videoRoutes);
 
-// Define a simple route
-app.get("/", (_: Request, res: Response) => {
-	res.send("Hello World from Express with TypeScript!");
-});
-
-// Start the server
+// 3) Start the server
 app.listen(port, () => {
 	console.log(`Server running at http://localhost:${port}`);
 });
