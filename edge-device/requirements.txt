@@ -1,4 +1,5 @@
 awscrt==0.24.1
+awsiotsdk @ file:///Users/jalilinayat-hussain/Downloads/aws-iot-device-sdk-python-v2
 boto3==1.38.11
 botocore==1.38.11
 jmespath==1.0.1
@@ -14,4 +15,3 @@ s3transfer==0.12.0
 six==1.17.0
 tzdata==2025.2
 urllib3==2.4.0
-

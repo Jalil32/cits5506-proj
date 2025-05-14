@@ -1,4 +1,7 @@
+import sys
 import os
+import time
+import RPi.GPIO as GPIO
 from DFRobot_C4001 import *
 
 class MotionDetector:

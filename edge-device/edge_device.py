@@ -1,4 +1,3 @@
-
 import boto3
 from awscrt import io, mqtt 
 from awsiot import mqtt_connection_builder 
@@ -10,6 +9,10 @@ from datetime import datetime
 import cv2
 from picamera2 import Picamera2
 from motion_detector import *
+from picamera2 import *
+from picamera2.encoders import H264Encoder
+from picamera2.outputs import FfmpegOutput
+from time import sleep
 
 # Certificate paths
 CERT_PATH = "certs"
@@ -32,6 +35,9 @@ S3_BUCKET = "jalil-iot-project"
 
 # Number of frames to extract per video
 FRAMES_TO_EXTRACT = 3
+
+DURATION = 20
+
 
 # Spin up resources
 event_loop_group = io.EventLoopGroup(1)
@@ -56,6 +62,27 @@ print("Connected!")
 
 # Set up S3 client
 s3_client = boto3.client('s3')
+
+def setup_logger(log_level=logging.INFO):
+    """Set up and configure a basic logger."""
+    # Create a logger
+    logger = logging.getLogger('my_application')
+    logger.setLevel(log_level)
+    
+    # Create console handler and set level
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(log_level)
+    
+    # Create formatter
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    
+    # Add formatter to console handler
+    console_handler.setFormatter(formatter)
+    
+    # Add console handler to logger
+    logger.addHandler(console_handler)
+    
+    return logger
 
 def capture_frames_directly(picam, frames_dir, timestamp, num_frames=3):
     """
@@ -90,27 +117,6 @@ def capture_frames_directly(picam, frames_dir, timestamp, num_frames=3):
         print(f"Error capturing frames directly: {e}")
         return []
 
-def setup_logger(log_level=logging.INFO):
-    """Set up and configure a basic logger."""
-    # Create a logger
-    logger = logging.getLogger('my_application')
-    logger.setLevel(log_level)
-    
-    # Create console handler and set level
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(log_level)
-    
-    # Create formatter
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    
-    # Add formatter to console handler
-    console_handler.setFormatter(formatter)
-    
-    # Add console handler to logger
-    logger.addHandler(console_handler)
-    
-    return logger
-
 # Function to upload file to s3
 def upload_to_s3(local_file, s3_key):
     print(f"Uploading {local_file} to S3 bucket {S3_BUCKET}")
@@ -139,53 +145,26 @@ def send_notification(video_url, frame_urls, timestamp):
         qos=mqtt.QoS.AT_LEAST_ONCE
     )
 
-def record_video(video_filename, duration, picam):
-    """
-    Record a video clip to the specified filename
-    Returns the video filename if successful, None otherwise
-    """
-    # Define the codec and create VideoWriter object
-    # Use MJPG codec which has better support on Raspberry Pi
-    fourcc = cv2.VideoWriter_fourcc(*'MJPG')
-    fps = 20.0
-    
-    # Get the camera resolution - fixed to use correct property names
-    config = picam.camera_config
-    width = config["main"]["size"][0]
-    height = config["main"]["size"][1]
-    frame_size = (width, height)
-    
-    # Change file extension to .avi for MJPG codec
-    if video_filename.endswith('.mp4'):
-        video_filename = video_filename.replace('.mp4', '.avi')
-    
-    out = cv2.VideoWriter(video_filename, fourcc, fps, frame_size)
-    
-    if not out.isOpened():
-        print(f"Error: Could not create video writer for {video_filename}")
-        return None
-    
-    start_time = time.time()
-    end_time = start_time + duration
-    
-    print(f"Recording video for {duration} seconds...")
-    
-    # Record video
-    while time.time() < end_time:
-        frame = picam.capture_array()
-        
-        # Write frame to video
-        out.write(frame)
-    
-    # Make sure to release the VideoWriter
-    out.release()
-    
-    if os.path.exists(video_filename) and os.path.getsize(video_filename) > 0:
-        print(f"Successfully recorded video: {video_filename}")
+
+def record_video(video_filename, duration, camera):
+    """Record a video clip directly to MP4 format"""
+    try:
+
+        encoder = H264Encoder(bitrate=10000000)
+
+        camera.start_recording(encoder, FfmpegOutput(video_filename))
+        print('STARTED RECORDING')
+
+        sleep(duration)
+        camera.stop_recording()
+
+        print('FINISHED RECORDING')
         return video_filename
-    else:
-        print(f"Error: Video file is empty or doesn't exist: {video_filename}")
+            
+    except Exception as e:
+        print(f"Error during video recording: {e}")
         return None
+
 
 def extract_frames_from_video(video_path, frames_dir, timestamp):
     """
@@ -253,12 +232,15 @@ def main():
 
     # 1) Connect to Raspberry Pi camera    
     logger.info("Initialising Pi camera...")
-    picam = Picamera2()
+    camera = Picamera2()
+
+    video_config = camera.create_video_configuration()
+    config = camera.create_preview_configuration(main={"size": (640, 480)})
+    camera.configure(video_config)
     
     # Configure camera
-    config = picam.create_preview_configuration(main={"size": (640, 480)})
-    picam.configure(config)
-    picam.start()
+    camera.configure(config)
+    camera.start()
     
     # Allow camera to warm up
     time.sleep(2)
@@ -300,12 +282,12 @@ def main():
                 timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
                 iso_timestamp = datetime.now().isoformat()
                 
-                video_filename = f"{CLIPS_DIR}/motion_{timestamp}.avi"  # Changed to .avi
+                video_filename = f"{CLIPS_DIR}/motion_{timestamp}.mp4"  # Changed to .avi
                 frames_subdir = os.path.join(FRAMES_DIR, timestamp)
 
                 # 3) First, record the video
                 logger.info(f"Recording video: {video_filename}")
-                recorded_video = record_video(video_filename, 5, picam)  # 5 seconds duration
+                recorded_video = record_video(video_filename, DURATION, camera)  # 5 seconds duration
                 
                 if not recorded_video:
                     logger.error("Failed to record video, aborting")
@@ -318,7 +300,7 @@ def main():
                 # If no frames were extracted, capture them directly
                 if not frame_files:
                     logger.info("No frames extracted from video, capturing directly from camera")
-                    frame_files = capture_frames_directly(picam, frames_subdir, timestamp, 3)
+                    frame_files = capture_frames_directly(camera, frames_subdir, timestamp, 3)
                     
                 if not frame_files:
                     logger.warning("No frames were captured")
@@ -326,7 +308,7 @@ def main():
                     logger.info(f"Successfully captured {len(frame_files)} frames")
                 
                 # 5) Upload video to S3
-                video_s3_key = f"clips/motion_{timestamp}.avi"  # Changed to .avi
+                video_s3_key = f"clips/motion_{timestamp}.mp4"  # Changed to .avi
                 video_s3_url = upload_to_s3(video_filename, video_s3_key)
                 
                 # 6) Upload frames to S3
@@ -350,7 +332,7 @@ def main():
     
     finally:
         # Make sure to stop the camera
-        picam.stop()
+        camera.stop()
         logger.info("Camera stopped")
 
 if __name__ == "__main__":
