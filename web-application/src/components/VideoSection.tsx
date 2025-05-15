@@ -6,6 +6,7 @@ import { RefreshCw } from "lucide-react";
 import { VideoDisplay } from "./VideoDisplay";
 import { VideoGallery } from "./VideoGallery";
 import type { VideoData } from "../types";
+import PrivacyMode from "./PrivacyMode";
 
 interface VideoSectionProps {
 	videos: VideoData[];
@@ -32,6 +33,7 @@ export const VideoSection: React.FC<VideoSectionProps> = ({
 }) => {
 	return (
 		<Card className="flex flex-1 bg-zinc-900 border-zinc-800 min-w-0">
+			<PrivacyMode />
 			<CardHeader className="flex-wrap">
 				<CardTitle className="text-zinc-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 w-full">
 					<span className="truncate">Home Security Monitoring</span>
