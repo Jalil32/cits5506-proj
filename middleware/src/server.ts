@@ -1,5 +1,5 @@
 import express from "express";
-import privacyRoutes from "./routes/privacyRoutes";
+import privacyRouter from "./routes/privacyRoutes";
 import videoRoutes from "./routes/videoRoutes";
 import cors from "cors";
 
@@ -24,7 +24,7 @@ app.use(
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(videoRoutes);
-app.use(privacyRoutes);
+app.use(privacyRouter);
 
 // 3) Start the server
 app.listen(port, () => {

@@ -1,11 +1,10 @@
 import express, { type Request, type Response } from "express";
 import iotService from "../services/iotService";
 
-const router = express.Router();
+const privacyRouter = express.Router();
 
 // Initialize IoT service when server starts
 iotService.connect();
-
 // Interface for request with enabled property
 interface SetPrivacyRequest extends Request {
 	body: {
@@ -14,10 +13,11 @@ interface SetPrivacyRequest extends Request {
 }
 
 // Route to get current privacy status
-router.get("/status", (_: Request, res: Response) => {
+privacyRouter.get("/status", async (_: Request, res: Response) => {
 	// Return the last known status or fetch it from the device
+	console.log("Status route hit");
 	const status = iotService.getLastStatus();
-	res.json({
+	res.status(200).json({
 		success: true,
 		status: status || {
 			privacyModeEnabled: false,
@@ -27,9 +27,10 @@ router.get("/status", (_: Request, res: Response) => {
 });
 
 // Route to set privacy mode
-router.post(
+privacyRouter.post(
 	"/set",
 	async (req: SetPrivacyRequest, res: Response): Promise<void> => {
+		console.log("Set route hit");
 		try {
 			const { enabled } = req.body;
 
@@ -55,4 +56,4 @@ router.post(
 	},
 );
 
-export default router;
+export default privacyRouter;

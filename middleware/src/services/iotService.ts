@@ -1,8 +1,8 @@
 import { device as IoTDevice } from "aws-iot-device-sdk";
-import * as path from "path";
+import * as path from "node:path";
 
 // Define your certificate paths - adjust as needed
-const CERT_PATH = path.join(__dirname, "../../certs/certs");
+const CERT_PATH = path.join(__dirname, "../../certs");
 const CERT_FILE = path.join(CERT_PATH, "root.pem");
 const KEY_FILE = path.join(
 	CERT_PATH,
