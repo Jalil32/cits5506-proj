@@ -17,7 +17,7 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
     onVideoError,
 }) => {
     return (
-        <div className="relative bg-zinc-800 h-64 md:h-80 rounded-lg overflow-hidden">
+        <div className="  relative bg-zinc-800  rounded-lg overflow-hidden">
             {selectedVideo && !privacyMode ? (
                 <video
                     src={selectedVideo.url}
@@ -54,19 +54,6 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
                 </Badge>
             )}
 
-            <Button
-                variant="ghost"
-                size="icon"
-                className="absolute top-2 right-2 text-zinc-100 hover:bg-zinc-700"
-                onClick={() => {
-                    if (selectedVideo && !privacyMode) {
-                        window.open(selectedVideo.url, '_blank');
-                    }
-                }}
-                disabled={!selectedVideo || privacyMode}
-            >
-                <Maximize2 className="h-4 w-4" />
-            </Button>
         </div>
     );
 };

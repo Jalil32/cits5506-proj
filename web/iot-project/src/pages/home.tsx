@@ -24,8 +24,9 @@ const HomePage = () => {
         { time: '10:30 AM', message: 'New recording available' },
     ];
 
+	//<NotificationPanel notifications={notifications} />
     return (
-        <div className="flex flex-row">
+        <div className=" h-full flex flex-row">
             <VideoSection
                 videos={videos}
                 selectedVideo={selectedVideo}
@@ -37,7 +38,6 @@ const HomePage = () => {
                 onVideoError={handleVideoError}
                 onTogglePrivacy={() => setPrivacyMode(!privacyMode)}
             />
-            <NotificationPanel notifications={notifications} />
         </div>
     );
 };

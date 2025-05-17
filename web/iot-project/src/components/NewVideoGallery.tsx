@@ -10,7 +10,7 @@ interface NotificationPanelProps {
     notifications: NotificationData[];
 }
 
-export const NotificationPanel: React.FC<NotificationPanelProps> = ({
+export const NewVideoGallery: React.FC<NotificationPanelProps> = ({
     notifications,
 }) => {
     return (

@@ -12,7 +12,7 @@ interface VideoPlayerProps {
 export const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, onClick }) => {
     return (
         <Card
-            className="w-40 bg-zinc-900 border-zinc-800 hover:border-zinc-700 cursor-pointer transition-all"
+            className="w-50 bg-zinc-900 border-zinc-800 hover:border-zinc-700 cursor-pointer transition-all"
             onClick={onClick}
         >
             <CardContent className="p-2">
