@@ -1,6 +1,6 @@
 import express from "express";
-import videoRoutes from "./routes/videoRoutes";
 import privacyRoutes from "./routes/privacyRoutes";
+import videoRoutes from "./routes/videoRoutes";
 import cors from "cors";
 
 // 1) Initialize express app
