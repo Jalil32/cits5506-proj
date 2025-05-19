@@ -1,4 +1,6 @@
+import { Toaster } from 'sonner';
 import { AppSidebar } from './components/app-sidebar';
+import { NotificationProvider } from './utils/NotificationContext';
 import {
     Breadcrumb,
     BreadcrumbItem,
@@ -67,15 +69,18 @@ function ContentLayout() {
 
 export default function App() {
     return (
-        <BrowserRouter>
-            <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-                <SidebarProvider>
-                    <div className="flex h-screen w-screen overflow-hidden bg-zinc-950">
-                        <AppSidebar className="h-full" />
-                        <ContentLayout />
-                    </div>
-                </SidebarProvider>
-            </ThemeProvider>
-        </BrowserRouter>
+		<NotificationProvider>
+			<BrowserRouter>
+				<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+					<SidebarProvider>
+						<div className="flex h-screen w-screen overflow-hidden bg-zinc-950">
+						<AppSidebar className="h-full" />
+						<ContentLayout />
+						</div>
+					</SidebarProvider>
+				</ThemeProvider>
+				<Toaster/>
+			</BrowserRouter>
+		</NotificationProvider>
     );
 }

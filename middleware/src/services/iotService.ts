@@ -1,5 +1,6 @@
 import { device as IoTDevice } from "aws-iot-device-sdk";
 import * as path from "node:path";
+import { EventEmitter } from "events";
 
 // Define your certificate paths - adjust as needed
 const CERT_PATH = path.join(__dirname, "../../certs");
@@ -17,6 +18,7 @@ const CLIENT_ID = "web_app_client";
 // Topics
 const PRIVACY_COMMAND_TOPIC = "home/cameras/privacy/command";
 const PRIVACY_STATUS_TOPIC = "home/cameras/privacy/status";
+const NOTIFICATION_TOPIC = "home/cameras/notification";
 
 // Interfaces
 export interface PrivacyStatus {
@@ -26,12 +28,22 @@ export interface PrivacyStatus {
 	isRecording: boolean;
 }
 
-type StatusListener = (status: PrivacyStatus) => void;
+export interface Notification {
+	message: string;
+	type: "info" | "success" | "warning" | "error";
+	timestamp: string;
+	deviceId?: string;
+	metadata?: Record<string, any>;
+}
 
-class IoTService {
+type StatusListener = (status: PrivacyStatus) => void;
+type NotificationListener = (notification: Notification) => void;
+
+class IoTService extends EventEmitter {
 	private device: InstanceType<typeof IoTDevice> | null = null;
 	private connected: boolean = false;
 	private statusListeners: StatusListener[] = [];
+	private notificationListeners: NotificationListener[] = [];
 	private lastStatus: PrivacyStatus | null = null;
 
 	public connect(): void {
@@ -51,13 +63,13 @@ class IoTService {
 				console.log("Connected to AWS IoT Core");
 				this.connected = true;
 
-				// Subscribe to status topic to get updates
+				// Subscribe to topics to get updates
 				if (this.device) {
 					this.device.subscribe(PRIVACY_STATUS_TOPIC);
+					this.device.subscribe(NOTIFICATION_TOPIC);
 				}
 			});
 
-			// Fix for the message event handler
 			this.device.on("message", (topic: string, payload: Buffer) => {
 				if (topic === PRIVACY_STATUS_TOPIC) {
 					try {
@@ -71,13 +83,30 @@ class IoTService {
 						this.statusListeners.forEach((listener) => {
 							listener(status);
 						});
+
+						// Emit event for WebSocket relay
+						this.emit("privacyStatusUpdate", status);
 					} catch (err) {
 						console.error("Error parsing status message:", err);
+					}
+				} else if (topic === NOTIFICATION_TOPIC) {
+					try {
+						const notification = JSON.parse(payload.toString()) as Notification;
+						console.log("Received notification:", notification);
+
+						// Notify all notification listeners
+						this.notificationListeners.forEach((listener) => {
+							listener(notification);
+						});
+
+						// Emit event for WebSocket relay
+						this.emit("notification", notification);
+					} catch (err) {
+						console.error("Error parsing notification:", err);
 					}
 				}
 			});
 
-			// Fix for the error event handler - accept string | Error
 			this.device.on("error", (error: string | Error) => {
 				console.error("IoT error:", error);
 				this.connected = false;
@@ -134,6 +163,16 @@ class IoTService {
 		this.statusListeners.push(listener);
 		return () => {
 			this.statusListeners = this.statusListeners.filter((l) => l !== listener);
+		};
+	}
+
+	// Add a listener for notification updates
+	public addNotificationListener(listener: NotificationListener): () => void {
+		this.notificationListeners.push(listener);
+		return () => {
+			this.notificationListeners = this.notificationListeners.filter(
+				(l) => l !== listener,
+			);
 		};
 	}
 
