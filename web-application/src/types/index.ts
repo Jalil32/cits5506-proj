@@ -4,6 +4,7 @@ export interface VideoData {
 	size: number;
 	lastModified: Date;
 	url: string;
+	thumbnailUrl?: string;
 }
 
 export interface NotificationData {

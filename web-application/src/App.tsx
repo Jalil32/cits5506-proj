@@ -71,7 +71,7 @@ export default function App() {
     return (
 		<NotificationProvider>
 			<BrowserRouter>
-				<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+				<ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
 					<SidebarProvider>
 						<div className="flex h-screen w-screen overflow-hidden bg-zinc-950">
 						<AppSidebar className="h-full" />

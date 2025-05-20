@@ -19,7 +19,7 @@ const PrivacyMode: React.FC = () => {
 	const [privacyEnabled, setPrivacyEnabled] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
-	const [socket, setSocket] = useState<WebSocket | null>(null); // Initialize WebSocket connection
+	const [_, setSocket] = useState<WebSocket | null>(null); // Initialize WebSocket connection
 
 	useEffect(() => {
 		const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";

@@ -21,8 +21,8 @@ import os
 def main():
     """Main function for the IoT security camera system."""
     try:
-        logger.info("Starting IoT security camera system...")
 
+        logger.info("Starting IoT security camera system...")
         # Main loop variables
         camera_initialized = False
         detector_initialized = False
@@ -67,6 +67,7 @@ def main():
         
         # Initialize camera manager
         camera_manager = CameraManager()
+
         # Initialize camera if needed
         if not camera_initialized:
             camera_initialized = camera_manager.initialize()
@@ -87,6 +88,7 @@ def main():
         while True:
             # Check privacy state
             if privacy_manager.is_privacy_enabled():
+                # If privacy mode enabled, terminate live stream
                 if live_stream_manager.streaming:
                     live_stream_manager.set_privacy_mode(True)
                     live_stream_manager.set_recording(False)
@@ -107,8 +109,6 @@ def main():
                 privacy_manager.set_detection_running(False)
                 time.sleep(1)  # Reduced CPU usage in privacy mode
                 continue
-            
-            # Privacy mode is disabled, normal operation
             
             # Initialize camera if needed
             if not camera_initialized:
