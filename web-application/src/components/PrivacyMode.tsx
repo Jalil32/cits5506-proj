@@ -19,9 +19,8 @@ const PrivacyMode: React.FC = () => {
 	const [privacyEnabled, setPrivacyEnabled] = useState<boolean>(false);
 	const [loading, setLoading] = useState<boolean>(true);
 	const [error, setError] = useState<string | null>(null);
-	const [socket, setSocket] = useState<WebSocket | null>(null);
+	const [socket, setSocket] = useState<WebSocket | null>(null); // Initialize WebSocket connection
 
-	// Initialize WebSocket connection
 	useEffect(() => {
 		const wsProtocol = window.location.protocol === "https:" ? "wss:" : "ws:";
 		const ws = new WebSocket(`${wsProtocol}//${window.location.host}`);
@@ -67,7 +66,7 @@ const PrivacyMode: React.FC = () => {
 			const response = await axios.get<{
 				success: boolean;
 				status: PrivacyStatus;
-			}>("/api/privacy/status");
+			}>("http://localhost:3000/status");
 
 			if (response.data.success) {
 				setPrivacyEnabled(response.data.status.privacyModeEnabled);
@@ -83,32 +82,46 @@ const PrivacyMode: React.FC = () => {
 	};
 
 	// Toggle privacy mode
-	const handleToggle = async (checked: boolean): Promise<void> => {
+	const handleToggle = async (): Promise<void> => {
 		try {
+			// Set loading state
 			setLoading(true);
-			const response = await axios.post<{ success: boolean }>(
-				"/api/privacy/set",
-				{ enabled: checked },
+			// We toggle based on the current state, not based on a passed parameter
+			const newState = !privacyEnabled;
+			
+			const response = await axios.post<{
+				success: boolean;
+				status?: PrivacyStatus;
+			}>(
+				"http://localhost:3000/set",
+				{ enabled: newState },
 			);
 
-			if (!response.data.success) {
+			if (response.data.success) {
+				// Only update the state when we receive confirmation from the server
+				if (response.data.status) {
+					// If the server returns the updated status, use that
+					setPrivacyEnabled(response.data.status.privacyModeEnabled);
+				} else {
+					// Otherwise use the state we sent
+					setPrivacyEnabled(newState);
+				}
+			} else {
 				setError("Failed to set privacy mode");
-				// Revert the switch
-				setPrivacyEnabled(!checked);
+				// No need to revert the state as we haven't changed it yet
 			}
 		} catch (err) {
 			console.error("Error setting privacy mode:", err);
 			setError("Failed to set privacy mode");
-			// Revert the switch
-			setPrivacyEnabled(!checked);
+			// No need to revert as we haven't changed it yet
 		} finally {
 			setLoading(false);
 		}
 	};
 
 	return (
-		<div className="bg-white rounded-lg shadow-md p-6 m-4">
-			<h2 className="text-2xl font-semibold text-gray-800 mb-4">
+		<div className=" rounded-lg ml-4">
+			<h2 className="text-2xl font-semibold  mb-4">
 				Privacy Mode
 			</h2>
 
@@ -132,11 +145,11 @@ const PrivacyMode: React.FC = () => {
 			<div className="flex items-center justify-between py-4 border-b border-gray-200">
 				<div className="flex flex-col">
 					<span
-						className={`text-lg font-medium ${privacyEnabled ? "text-blue-600" : "text-gray-600"}`}
+						className={`text-lg font-medium ${privacyEnabled ? "text-blue-600" : ""}`}
 					>
 						{privacyEnabled ? "Privacy Mode ON" : "Privacy Mode OFF"}
 					</span>
-					<span className="text-sm text-gray-500 mt-1">
+					<span className="text-sm  mt-1">
 						{privacyEnabled
 							? "Motion detection and recording are paused"
 							: "Motion detection and recording are active"}
