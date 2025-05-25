@@ -1,54 +1,110 @@
-# React + TypeScript + Vite
+# IoT Security System Web Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern React-based web application for monitoring and managing an IoT security camera system. Built with TypeScript, Vite, and Tailwind CSS.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Live Camera Streaming**: Real-time video feed from connected IoT cameras
+- **Video Gallery**: Browse and view recorded video footage with thumbnail previews
+- **Privacy Mode**: Toggle privacy settings for camera streams
+- **Dark/Light Theme**: Responsive theme switching with system preference support
+- **Real-time Notifications**: Live notification system for security events
+- **Responsive Design**: Mobile-friendly interface with collapsible sidebar navigation
 
-## Expanding the ESLint configuration
+## Technology Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Frontend Framework**: React 19 with TypeScript
+- **Build Tool**: Vite 6
+- **Styling**: Tailwind CSS 4 with Radix UI components
+- **Routing**: React Router DOM
+- **Real-time Communication**: Socket.io Client
+- **HTTP Client**: Axios
+- **UI Components**: Custom components built on Radix UI primitives
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Prerequisites
+
+- Node.js (version 18 or higher)
+- npm or yarn package manager
+
+## Installation
+
+1. Clone the repository and navigate to the web-application directory:
+```bash
+cd web-application
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+2. Install dependencies:
+```bash
+npm install
 ```
+
+## Development
+
+Start the development server:
+```bash
+npm run dev
+```
+
+The application will be available at `http://localhost:5173`
+
+## Build
+
+Create a production build:
+```bash
+npm run build
+```
+
+Preview the production build:
+```bash
+npm run preview
+```
+
+## Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run lint` - Run ESLint
+- `npm run preview` - Preview production build
+
+## Project Structure
+
+```
+src/
+├── components/          # Reusable UI components
+│   ├── ui/             # Base UI components (buttons, cards, etc.)
+│   ├── CameraStreamView.tsx
+│   ├── VideoGallery.tsx
+│   ├── NotificationPanel.tsx
+│   └── ...
+├── pages/              # Main application pages
+│   ├── home.tsx        # Video gallery and management
+│   └── LiveStream.tsx  # Live camera streaming
+├── hooks/              # Custom React hooks
+├── utils/              # Utility functions and contexts
+├── types/              # TypeScript type definitions
+└── lib/                # Library configurations
+```
+
+## Key Components
+
+- **Home Page**: Main dashboard for viewing recorded videos and managing the system
+- **Live Stream Page**: Real-time camera feed with privacy controls
+- **Video Gallery**: Grid-based video browser with thumbnail support
+- **Notification System**: Real-time alerts and system notifications
+- **Theme Provider**: Dark/light mode support with persistence
+
+## Configuration
+
+The application uses Vite for build configuration and supports:
+- Path aliases (`@/` maps to `src/`)
+- TypeScript compilation
+- Tailwind CSS processing
+- React Fast Refresh
+
+## Browser Support
+
+Modern browsers with ES2015+ support including:
+- Chrome 88+
+- Firefox 85+
+- Safari 14+
+- Edge 88+

@@ -59,7 +59,7 @@ export const NotificationProvider = ({ children }: { children: ReactNode }) => {
     socket.on('camera-notification', (notification: Notification) => {
       console.log('Received notification:', notification);
       
-      // Display toast notification based on the type
+      // Dsplay toast notification based on the type
       switch (notification.type) {
         case 'success':
           toast.success(notification.message);
