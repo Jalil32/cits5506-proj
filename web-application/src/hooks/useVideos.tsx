@@ -21,11 +21,23 @@ export const useVideos = () => {
 
 			const data = await response.json();
 
-			// Convert string dates to Date objects
-			const processedVideos = data.videos.map((video: any) => ({
-				...video,
-				lastModified: new Date(video.lastModified),
-			}));
+			// Convert string dates to Date objects and add thumbnail URLs
+			const processedVideos = data.videos.map((video: any) => {
+				// Extract date part from video key or filename to construct thumbnail path
+				const dateMatch = video.key.match(/(\d{8}_\d{6})/); // Matches format like 20250520_024522
+				const dateStr = dateMatch ? dateMatch[1] : '';
+				
+				// Construct thumbnail URL using the same date pattern
+				const thumbnailUrl = dateStr 
+					? `${apiUrl}/thumbnails/frames/${dateStr}/frame_0.jpg` 
+					: '';
+
+				return {
+					...video,
+					lastModified: new Date(video.lastModified),
+					thumbnailUrl
+				};
+			});
 
 			// Sort videos by date (newest first)
 			processedVideos.sort(
@@ -64,6 +76,17 @@ export const useVideos = () => {
 		);
 	};
 
+	const handleThumbnailError = (videoId: string) => {
+		// Find the video and update it with no thumbnail
+		setVideos(currentVideos => 
+			currentVideos.map(video => 
+				video.key === videoId 
+					? { ...video, thumbnailUrl: undefined }
+					: video
+			)
+		);
+	};
+
 	return {
 		videos,
 		selectedVideo,
@@ -72,5 +95,6 @@ export const useVideos = () => {
 		fetchVideos,
 		setSelectedVideo,
 		handleVideoError,
+		handleThumbnailError,
 	};
 };

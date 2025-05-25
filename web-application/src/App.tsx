@@ -71,7 +71,7 @@ export default function App() {
     return (
 		<NotificationProvider>
 			<BrowserRouter>
-				<ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+				<ThemeProvider defaultTheme="dark" storageKrounded-2xley="vite-ui-theme">
 					<SidebarProvider>
 						<div className="flex h-screen w-screen overflow-hidden bg-zinc-950">
 						<AppSidebar className="h-full" />
@@ -79,7 +79,7 @@ export default function App() {
 						</div>
 					</SidebarProvider>
 				</ThemeProvider>
-				<Toaster/>
+				<Toaster duration={2147483647}/>
 			</BrowserRouter>
 		</NotificationProvider>
     );

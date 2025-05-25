@@ -17,19 +17,19 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
     onVideoError,
 }) => {
     return (
-        <div className="  relative bg-zinc-800  rounded-lg overflow-hidden">
+        <div className="relative bg-zinc-800 rounded-lg overflow-hidden w-full h-[600px]">
             {selectedVideo && !privacyMode ? (
                 <video
                     src={selectedVideo.url}
                     controls
-                    className=" h-full object-contain"
+                    className="w-full h-full object-contain"
                     onError={onVideoError}
                 />
             ) : (
-                <div className="h-full flex items-center justify-center">
+                <div className="w-full h-full flex items-center justify-center">
                     {privacyMode ? (
                         <div className="text-center">
-                            <Video className="h-12  text-zinc-600 mx-auto mb-2" />
+                            <Video className="h-12 text-zinc-600 mx-auto mb-2" />
                             <p className="text-zinc-400">
                                 Privacy Mode Enabled
                             </p>
@@ -44,7 +44,6 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
                     )}
                 </div>
             )}
-
             {selectedVideo && !privacyMode && (
                 <Badge
                     variant="secondary"
@@ -53,7 +52,6 @@ export const VideoDisplay: React.FC<VideoDisplayProps> = ({
                     {formatDetailedDate(selectedVideo.lastModified)}
                 </Badge>
             )}
-
         </div>
     );
 };
